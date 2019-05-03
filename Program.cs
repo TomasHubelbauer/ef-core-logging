@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Console;
 
@@ -22,14 +23,22 @@ namespace ef_core_logging
 
   public class AppDbContext : DbContext
   {
-    private static readonly LoggerFactory LoggerFactory = new LoggerFactory(new[] { new ConsoleLoggerProvider((_, __) => true, true) });
     public DbSet<Item> Items { get; set; }
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
       optionsBuilder.UseSqlServer($@"Server=(localdb)\{nameof(ef_core_logging)};Database={nameof(ef_core_logging)};");
       optionsBuilder.EnableDetailedErrors();
       optionsBuilder.EnableSensitiveDataLogging();
-      optionsBuilder.UseLoggerFactory(LoggerFactory);
+
+      var serviceCollection = new ServiceCollection();
+      serviceCollection.AddLogging(builder =>
+        builder
+          .AddConsole()
+          .AddFilter(DbLoggerCategory.Database.Command.Name, LogLevel.Trace)
+      );
+
+      var loggerFactory = serviceCollection.BuildServiceProvider().GetService<ILoggerFactory>();
+      optionsBuilder.UseLoggerFactory(loggerFactory);
     }
   }
 
