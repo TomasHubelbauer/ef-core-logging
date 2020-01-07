@@ -1,5 +1,7 @@
 # EF Core Logging
 
+[**WEB**](https://tomashubelbauer.github.io/ef-core-logging)
+
 1. `dotnet new console`
 2. `dotnet add package Microsoft.EntityFrameworkCore.SqlServer`
 3. `sqllocaldb create ef_core_logging`
